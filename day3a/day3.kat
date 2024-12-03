@@ -1,0 +1,77 @@
+$input: read(open_r("input.txt"));
+$index: 1;
+$last_consumed_string: "";
+
+def consume_if_str;
+    $str: $_[1];
+    global $last_consumed_string: "";
+    $local_input_index: $index;
+    for $str;
+        $local_index: $_r;
+        if !is($input[$local_input_index]);
+            return $false;
+        elif $input[$local_input_index] <> $str[$local_index];
+            return $false;
+        else;
+            $local_input_index: $local_input_index + 1;
+        ok;
+    ok;
+    global $last_consumed_string: $last_consumed_string & $str;
+    global $index: $index + len($str);
+    return $true;
+ok;
+
+def consume_if_digit;
+    $local_index: $index;
+    if !is($input[$local_index]);
+        return $false;
+    ok;
+    if is_numeric($input[$index]);
+        global $index: $index + 1;
+        global $last_consumed_string: $input[$local_index];
+        return $true;
+    ok;
+ok;
+
+$result: 0;
+$found: 0; # Tiene que dar 487
+until $index > len($input);
+    $failed: $true;
+    if consume_if_str("mul(");
+        $digit1: "";
+        $digit2: "";
+        if consume_if_digit();
+            $digit1: $last_consumed_string;
+            if consume_if_digit();
+                $digit1: $digit1 & $last_consumed_string;
+            ok;
+            if consume_if_digit();
+                $digit1: $digit1 & $last_consumed_string;
+            ok;
+            if consume_if_str(",");
+                if consume_if_digit();
+                    $digit2: $last_consumed_string;
+                    if consume_if_digit();
+                        $digit2: $digit2 & $last_consumed_string;
+                    ok;
+                    if consume_if_digit();
+                        $digit2: $digit2 & $last_consumed_string;
+                    ok;
+                    if consume_if_str(")");
+                        # print($digit1, " * ", $digit2, " = ", $digit1 * $digit2);
+                        $result: $result + ($digit1 * $digit2);
+                        $found: $found + 1;
+                        $failed: $false;
+                    ok;
+                ok;
+            ok;
+        ok;
+    ok;
+
+    if $failed;
+        $index: $index + 1;
+    ok;
+ok;
+
+print("Result: ", $result);
+print("Found: ", $found);
