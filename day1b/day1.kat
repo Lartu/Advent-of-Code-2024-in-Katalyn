@@ -1,0 +1,17 @@
+in $input: read(open_r("input.txt"));
+in $list_left: arr();
+in $list_right: arr();
+in $lines: split($input, "\n");
+for $lines;
+    in $line: $lines[$_r];
+    in $numbers: wssplit($line);
+    append($list_left, to_num($numbers[1]));
+    append($list_right, to_num($numbers[2]));
+ok;
+in $sum: 0;
+for $list_left;
+    in $value: $list_left[$_r];
+    in $count: arrcount($list_right, $value);
+    $sum: $sum + ($value * $count);
+ok;
+print($sum);
