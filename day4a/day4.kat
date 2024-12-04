@@ -1,0 +1,246 @@
+$input: read(open_r("input.txt"));
+$lines: split($input, "\n");
+
+$lettergrid: table;
+$seeked_word: "XMAS";
+
+$y: 1;
+for $lines;
+    $x: 1;
+    $line: $lines[$_r];
+    if !is($lettergrid[$y]);
+        $lettergrid[$y]: table;
+    ok;
+    for $line;
+        $char: $line[$_r];
+        $lettergrid[$y][$x]: $char;
+        $x: $x + 1;
+    ok;
+    $y: $y + 1;
+ok;
+
+$xmascounter: 0;
+
+# ➡️ -- Checked
+$y: 1;
+while $y <= len($lettergrid);
+    $x: 1;
+    $word: "";
+    while $x <= len($lettergrid[1]);
+        $word: $word & $lettergrid[$y][$x];
+        if $word = $seeked_word;
+            $xmascounter: $xmascounter + 1;
+        ok;
+        if len($word) = len($seeked_word);
+            $word: substr($word, 2);
+        ok;
+        $x: $x + 1;
+    ok;
+    $y: $y + 1;
+ok;
+print("➡️ ", $xmascounter); # 3
+
+# ⬅️ -- Checked
+$prev_xmascounter: $xmascounter;
+$y: 1;
+while $y <= len($lettergrid);
+    $x: len($lettergrid[1]);
+    $word: "";
+    while $x >= 1;
+        $word: $word & $lettergrid[$y][$x];
+        if $word = $seeked_word;
+            $xmascounter: $xmascounter + 1;
+        ok;
+        if len($word) = len($seeked_word);
+            $word: substr($word, 2);
+        ok;
+        $x: $x - 1;
+    ok;
+    $y: $y + 1;
+ok;
+print("⬅️ ", $xmascounter - $prev_xmascounter); # 2
+
+# ⬇️ -- Checked
+$prev_xmascounter: $xmascounter;
+$y: 1;
+while $y <= len($lettergrid)- (len($seeked_word) - 1);
+    $x: 1;
+    while $x <= len($lettergrid[1]);
+        $word: "";
+        $dy: $y;
+        while $dy <= $y + (len($seeked_word) - 1);
+            if !is($lettergrid[$dy]);
+                break;
+            elif !is($lettergrid[$dy][$x]);
+                break;
+            ok;
+            $word: $word & $lettergrid[$dy][$x];
+            if $word = $seeked_word;
+                $xmascounter: $xmascounter + 1;
+            ok;
+            if len($word) = len($seeked_word);
+                $word: substr($word, 2);
+            ok;
+            $dy: $dy + 1;
+        ok;
+        $x: $x + 1;
+    ok;
+    $y: $y + 1;
+ok;
+print("⬇️ ", $xmascounter - $prev_xmascounter); # 1
+
+# ⬆️ -- Checked
+$prev_xmascounter: $xmascounter;
+$y: len($lettergrid);
+while $y >= len($seeked_word);
+    $x: 1;
+    while $x <= len($lettergrid[1]);
+        $word: "";
+        $dy: $y;
+        while $dy >= $y - (len($seeked_word) - 1);
+            if !is($lettergrid[$dy]);
+                break;
+            elif !is($lettergrid[$dy][$x]);
+                break;
+            ok;
+            $word: $word & $lettergrid[$dy][$x];
+            if $word = $seeked_word;
+                $xmascounter: $xmascounter + 1;
+            ok;
+            if len($word) = len($seeked_word);
+                $word: substr($word, 2);
+            ok;
+            $dy: $dy - 1;
+        ok;
+        $x: $x + 1;
+    ok;
+    $y: $y - 1;
+ok;
+print("⬆️ ", $xmascounter - $prev_xmascounter); # 2
+
+# ↘️ -- Checked
+$prev_xmascounter: $xmascounter;
+$y: 1;
+while $y <= len($lettergrid) - (len($seeked_word) - 1);
+    $x: 1;
+    while $x <= len($lettergrid[1]) - (len($seeked_word) - 1);
+        $word: "";
+        $dx: $x;
+        $dy: $y;
+        while $dx <= $x + (len($seeked_word) - 1);
+            if !is($lettergrid[$dy]);
+                break;
+            elif !is($lettergrid[$dy][$dx]);
+                break;
+            ok;
+            $word: $word & $lettergrid[$dy][$dx];
+            if $word = $seeked_word;
+                $xmascounter: $xmascounter + 1;
+            ok;
+            if len($word) = len($seeked_word);
+                $word: substr($word, 2);
+            ok;
+            $dx: $dx + 1;
+            $dy: $dy + 1;
+        ok;
+        $x: $x + 1;
+    ok;
+    $y: $y + 1;
+ok;
+print("↘️ ", $xmascounter - $prev_xmascounter); # 1
+
+# ↙️ -- Checked
+$prev_xmascounter: $xmascounter;
+$y: 1;
+while $y <= len($lettergrid) - (len($seeked_word) - 1);
+    $x: len($lettergrid[1]);
+    while $x >= len($seeked_word);
+        $word: "";
+        $dx: $x;
+        $dy: $y;
+        while $dx >= $x - (len($seeked_word) - 1);
+            if !is($lettergrid[$dy]);
+                break;
+            elif !is($lettergrid[$dy][$dx]);
+                break;
+            ok;
+            $word: $word & $lettergrid[$dy][$dx];
+            if $word = $seeked_word;
+                $xmascounter: $xmascounter + 1;
+            ok;
+            if len($word) = len($seeked_word);
+                $word: substr($word, 2);
+            ok;
+            $dx: $dx - 1;
+            $dy: $dy + 1;
+        ok;
+        $x: $x - 1;
+    ok;
+    $y: $y + 1;
+ok;
+print("↙️ ", $xmascounter - $prev_xmascounter); # 1
+
+# ↗️ -- Checked
+$prev_xmascounter: $xmascounter;
+$y: len($lettergrid);
+while $y >= len($seeked_word);
+    $x: 1;
+    while $x <= len($lettergrid[1]) - (len($seeked_word) - 1);
+        $word: "";
+        $dx: $x;
+        $dy: $y;
+        while $dx <= $x + (len($seeked_word) - 1);
+            if !is($lettergrid[$dy]);
+                break;
+            elif !is($lettergrid[$dy][$dx]);
+                break;
+            ok;
+            $word: $word & $lettergrid[$dy][$dx];
+            if $word = $seeked_word;
+                # print($dx, ", ", $dy, " / ", $x, ", ", $y);
+                $xmascounter: $xmascounter + 1;
+            ok;
+            if len($word) = len($seeked_word);
+                $word: substr($word, 2);
+            ok;
+            $dx: $dx + 1;
+            $dy: $dy - 1;
+        ok;
+        $x: $x + 1;
+    ok;
+    $y: $y - 1;
+ok;
+print("↗️ ", $xmascounter - $prev_xmascounter); # 4
+
+# ↖️
+$prev_xmascounter: $xmascounter;
+$y: len($lettergrid);
+while $y >= len($seeked_word);
+    $x: len($lettergrid[1]);
+    while $x >= len($seeked_word);
+        $word: "";
+        $dx: $x;
+        $dy: $y;
+        while $dx >= $x - (len($seeked_word) - 1);
+            if !is($lettergrid[$dy]);
+                break;
+            elif !is($lettergrid[$dy][$dx]);
+                break;
+            ok;
+            $word: $word & $lettergrid[$dy][$dx];
+            if $word = $seeked_word;
+                $xmascounter: $xmascounter + 1;
+            ok;
+            if len($word) = len($seeked_word);
+                $word: substr($word, 2);
+            ok;
+            $dx: $dx - 1;
+            $dy: $dy - 1;
+        ok;
+        $x: $x - 1;
+    ok;
+    $y: $y - 1;
+ok;
+print("↖️ ", $xmascounter - $prev_xmascounter); # 4
+
+print("Found: ", $xmascounter);

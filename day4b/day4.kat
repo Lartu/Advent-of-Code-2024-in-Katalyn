@@ -1,0 +1,74 @@
+$input: read(open_r("input.txt"));
+$lines: split($input, "\n");
+
+$lettergrid: table;
+
+$y: 1;
+for $lines;
+    $x: 1;
+    $line: $lines[$_r];
+    if !is($lettergrid[$y]);
+        $lettergrid[$y]: table;
+    ok;
+    for $line;
+        $char: $line[$_r];
+        $lettergrid[$y][$x]: $char;
+        $x: $x + 1;
+    ok;
+    $y: $y + 1;
+ok;
+
+$xmascounter: 0;
+
+$y: 1;
+while $y <= len($lettergrid) - 2;
+    $x: 1;
+    while $x <= len($lettergrid[1]) - 2;
+        if  # ↘️
+               $lettergrid[$y    ][$x    ] = "M"
+            && $lettergrid[$y + 1][$x + 1] = "A"
+            && $lettergrid[$y + 2][$x + 2] = "S"
+            # ↙️
+            && $lettergrid[$y    ][$x + 2] = "M"
+            && $lettergrid[$y + 1][$x + 1] = "A"
+            && $lettergrid[$y + 2][$x    ] = "S";
+            $xmascounter: $xmascounter + 1;
+        ok;
+
+        if  # ↘️
+               $lettergrid[$y    ][$x    ] = "S"
+            && $lettergrid[$y + 1][$x + 1] = "A"
+            && $lettergrid[$y + 2][$x + 2] = "M"
+            # ↙️
+            && $lettergrid[$y    ][$x + 2] = "S"
+            && $lettergrid[$y + 1][$x + 1] = "A"
+            && $lettergrid[$y + 2][$x    ] = "M";
+            $xmascounter: $xmascounter + 1;
+        ok;
+
+        if  # ↘️
+               $lettergrid[$y    ][$x    ] = "M"
+            && $lettergrid[$y + 1][$x + 1] = "A"
+            && $lettergrid[$y + 2][$x + 2] = "S"
+            # ↙️
+            && $lettergrid[$y    ][$x + 2] = "S"
+            && $lettergrid[$y + 1][$x + 1] = "A"
+            && $lettergrid[$y + 2][$x    ] = "M";
+            $xmascounter: $xmascounter + 1;
+        ok;
+
+        if  # ↘️
+               $lettergrid[$y    ][$x    ] = "S"
+            && $lettergrid[$y + 1][$x + 1] = "A"
+            && $lettergrid[$y + 2][$x + 2] = "M"
+            # ↙️
+            && $lettergrid[$y    ][$x + 2] = "M"
+            && $lettergrid[$y + 1][$x + 1] = "A"
+            && $lettergrid[$y + 2][$x    ] = "S";
+            $xmascounter: $xmascounter + 1;
+        ok;
+        $x: $x + 1;
+    ok;
+    $y: $y + 1;
+ok;
+print("Found: ", $xmascounter);
