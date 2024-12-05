@@ -1,0 +1,77 @@
+(* --- Load Data --- *)
+
+$input: read(open_r("input.txt"));
+$lines: split($input, "\n");
+
+(* --- Parse Data --- *)
+
+$restrictions: arr();
+$print_lines: arr();
+$mode: "restrictions";
+for $lines;
+    $line: trim($lines[$_r]);
+    if $mode = "restrictions";
+        if $line = "";
+            print("Found empty line.");
+            $mode: "pages";
+        else;
+            $tokens: split($line, "|");
+            append($restrictions, 
+                arr($tokens[1], $tokens[2])
+            );
+        ok;
+    elif $mode = "pages";
+        append($print_lines, split($line, ","));
+    ok;
+ok;
+
+(* --- Validate Page Order --- *)
+def check_restriction_order;
+    $page_prev: $_[1];
+    $page_after: $_[2];
+    for $restrictions;
+        $restr: $restrictions[$_r];
+        if $restr[1] = $page_after;
+            if $restr[2] = $page_prev;
+                # print("Pages ", $page_prev, " & ", $page_after, " fail restr. ", $restr[1], "|", $restr[2]);
+                return $false;
+            ok;
+        ok;
+    ok;
+    return $true;
+ok;
+
+$total_middle_page_sum: 0;
+$counter: 1;
+for $print_lines;
+    $pages: $print_lines[$_r];
+    $ok: $true;
+    print("Checking update: ", $counter, " of ", len($print_lines));
+    while $true;
+        $retry_needed: $false;
+        $i: 2;
+        while $i <= $pages;
+            if !check_restriction_order($pages[$i - 1], $pages[$i]);
+                # If the values are not in the right order, swap them and start again.
+                $swap: $pages[$i - 1];
+                $pages[$i - 1]: $pages[$i];
+                $pages[$i]: $swap;
+                $retry_needed: $true;
+                $ok: $false;  # This was not in the right order
+            ok;
+            $i: $i + 1;
+        ok;
+        if !$retry_needed;
+            break;
+        ok;
+    ok;
+    if !$ok;
+        # If ok, get middle number
+        $middle_index: floor(len($pages) / 2) + 1;
+        $middle_value: $pages[$middle_index];
+        $total_middle_page_sum: $total_middle_page_sum + $middle_value;
+    ok;
+    $counter: $counter + 1;
+ok;
+
+print("Total middle page sum: ", $total_middle_page_sum);
