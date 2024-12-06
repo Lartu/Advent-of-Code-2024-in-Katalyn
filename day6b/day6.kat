@@ -1,0 +1,156 @@
+(* --- Load Data --- *)
+
+$input: read(open_r("input.txt"));
+$lines: split($input, "\n");
+
+(* --- Parse Data --- *)
+
+$map: table;
+$player_x: 0;
+$player_y: 0;
+$start_x: 0;
+$start_y: 0;
+$start_dir: "";
+$player_dir: "";  # UP, RIGHT, DOWN, LEFT
+$y: 1;
+for $lines;
+    $x: 1;
+    $line: trim($lines[$_r]);
+    for $line;
+        $char: $line[$_r];
+        if !is($map[$y]);
+            $map[$y]: table;
+        ok;
+        if $char :: "^<>v";
+            $start_x: $x;
+            $start_y: $y;
+            if $char = "^";
+                $start_dir: "UP";
+            elif $char = "<";
+                $start_dir: "LEFT";
+            elif $char = ">";
+                $start_dir: "RIGHT";
+            elif $char = "v";
+                $start_dir: "DOWN";
+            ok;
+            $char: ".";
+        ok;
+        $map[$y][$x]: $char;
+        $x: $x + 1;
+    ok;
+    $y: $y + 1;
+ok;
+
+(* --- Simulate --- *)
+
+$visited_positions: table;
+$visited_positions_directions: table;
+
+def rotate_player;
+    if $player_dir = "UP";
+        global $player_dir: "RIGHT";
+    elif $player_dir = "LEFT";
+        global $player_dir: "UP";
+    elif $player_dir = "RIGHT";
+        global $player_dir: "DOWN";
+    elif $player_dir = "DOWN";
+        global $player_dir: "LEFT";
+    ok;
+ok;
+
+$block_test_x: 1;
+$block_test_y: 1;
+
+def move_player;
+    $dx: 0;
+    $dy: 0;
+    if $player_dir = "UP";
+        $dy: -1;
+    elif $player_dir = "LEFT";
+        $dx: -1;
+    elif $player_dir = "RIGHT";
+        $dx: 1;
+    elif $player_dir = "DOWN";
+        $dy: 1;
+    ok;
+    $next_x: $player_x + $dx;
+    $next_y: $player_y + $dy;
+    if is($map[$next_y]);
+        if is($map[$next_y][$next_x]);
+            if $map[$next_y][$next_x] = "#" || ($block_test_x = $next_x && $block_test_y = $next_y);
+                rotate_player();
+            else;
+                $visited_positions[$player_x & "|" & $player_y]: $true;
+                global $player_x: $next_x;
+                global $player_y: $next_y;
+                $visited_positions[$player_x & "|" & $player_y]: $true;
+            ok;
+            return $true;  # Not exited, continue
+        ok;
+    ok;
+    return $false;  # Exited, don't continue
+ok;
+
+def print_map;
+    for $map;
+        $y: $_r;
+        for $map[$y];
+            $x: $_r;
+            if $y = $player_y && $x = $player_x;
+                if $player_dir = "UP";
+                    printc("^");
+                elif $player_dir = "LEFT";
+                    printc("<");
+                elif $player_dir = "RIGHT";
+                    printc(">");
+                elif $player_dir = "DOWN";
+                    printc("v");
+                ok;
+            else;
+                printc($map[$y][$x]);
+            ok;
+        ok;
+        print("");
+    ok;
+    print("");
+ok;
+
+$loop_count: 0;
+$i: 1;
+$mod: 2;
+while $i <= len($map);
+    $i: $i + $mod;
+    printc("-"); # Progress Bar
+ok;
+print("");
+while $block_test_y <= len($map);
+    while $block_test_x <= len($map[1]);
+        # print($block_test_x, ", ", $block_test_y);
+        $player_dir: $start_dir;
+        $player_x: $start_x;
+        $player_y: $start_y;
+        $visited_positions_directions: table;
+        $visited_positions_directions[$player_x & "|" & $player_y & "|" & $player_dir]: $true;
+        # print($player_x & "|" & $player_y & "|" & $player_dir);
+        while move_player();
+            #print_map();
+            if $player_x & "|" & $player_y & "|" & $player_dir :: $visited_positions_directions;
+                # print("Found loop at ", $block_test_x, ", ", $block_test_y);
+                $loop_count: $loop_count + 1;
+                break;
+            else;
+                $visited_positions_directions[$player_x & "|" & $player_y & "|" & $player_dir]: $true;
+            ok;
+        ok;
+        $block_test_x: $block_test_x + 1;
+    ok;
+    $block_test_y: $block_test_y + 1;
+    $block_test_x: 1;
+    if $block_test_y % $mod = 1;
+        printc("."); # Progress Bar
+    ok;
+ok;
+print("");
+
+print("Different positions: " & len($visited_positions));
+print("Loop positions: " & $loop_count);

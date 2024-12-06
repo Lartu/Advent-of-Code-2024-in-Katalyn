@@ -1,0 +1,115 @@
+(* --- Load Data --- *)
+
+$input: read(open_r("input.txt"));
+$lines: split($input, "\n");
+
+(* --- Parse Data --- *)
+
+$map: table;
+$player_x: 0;
+$player_y: 0;
+$player_dir: "UP";  # UP, RIGHT, DOWN, LEFT
+$y: 1;
+for $lines;
+    $x: 1;
+    $line: trim($lines[$_r]);
+    for $line;
+        $char: $line[$_r];
+        if !is($map[$y]);
+            $map[$y]: table;
+        ok;
+        if $char :: "^<>v";
+            $player_x: $x;
+            $player_y: $y;
+            if $char = "^";
+                $player_dir: "UP";
+            elif $char = "<";
+                $player_dir: "LEFT";
+            elif $char = ">";
+                $player_dir: "RIGHT";
+            elif $char = "v";
+                $player_dir: "DOWN";
+            ok;
+            $char: ".";
+        ok;
+        $map[$y][$x]: $char;
+        $x: $x + 1;
+    ok;
+    $y: $y + 1;
+ok;
+
+(* --- Simulate --- *)
+
+$visited_positions: table;
+
+def rotate_player;
+    if $player_dir = "UP";
+        global $player_dir: "RIGHT";
+    elif $player_dir = "LEFT";
+        global $player_dir: "UP";
+    elif $player_dir = "RIGHT";
+        global $player_dir: "DOWN";
+    elif $player_dir = "DOWN";
+        global $player_dir: "LEFT";
+    ok;
+ok;
+
+def move_player;
+    $dx: 0;
+    $dy: 0;
+    if $player_dir = "UP";
+        $dy: -1;
+    elif $player_dir = "LEFT";
+        $dx: -1;
+    elif $player_dir = "RIGHT";
+        $dx: 1;
+    elif $player_dir = "DOWN";
+        $dy: 1;
+    ok;
+    $next_x: $player_x + $dx;
+    $next_y: $player_y + $dy;
+    if is($map[$next_y]);
+        if is($map[$next_y][$next_x]);
+            if $map[$next_y][$next_x] = "#";
+                rotate_player();
+            else;
+                $visited_positions[$player_x & "|" & $player_y]: $true;
+                global $player_x: $next_x;
+                global $player_y: $next_y;
+                $visited_positions[$player_x & "|" & $player_y]: $true;
+            ok;
+            return $true;  # Not exited, continue
+        ok;
+    ok;
+    return $false;  # Exited, don't continue
+ok;
+
+def print_map;
+    for $map;
+        $y: $_r;
+        for $map[$y];
+            $x: $_r;
+            if $y = $player_y && $x = $player_x;
+                if $player_dir = "UP";
+                    printc("^");
+                elif $player_dir = "LEFT";
+                    printc("<");
+                elif $player_dir = "RIGHT";
+                    printc(">");
+                elif $player_dir = "DOWN";
+                    printc("v");
+                ok;
+            else;
+                printc($map[$y][$x]);
+            ok;
+        ok;
+        print("");
+    ok;
+    print("");
+ok;
+
+while move_player();
+    #print_map();
+ok;
+
+print("Different positions: " & len($visited_positions));
