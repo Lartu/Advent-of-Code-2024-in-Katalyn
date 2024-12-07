@@ -1,0 +1,43 @@
+(* --- Load Data --- *)
+
+$input: read(open_r("input.txt"));
+$lines: split($input, "\n");
+
+(* Node object *)
+$node: table;
+
+def try_operators;
+    $result_so_far: $_[1];
+    $numbers: $_[2];
+    $start_index: $_[3];
+    $expected_result: $_[4];
+    if $start_index > len($numbers);
+        return $result_so_far = $expected_result;
+    else;
+        if $result_so_far > $expected_result;
+            return $false;
+        ok;
+        return try_operators($result_so_far + $numbers[$start_index], $numbers, $start_index + 1, $expected_result)
+        || try_operators($result_so_far * $numbers[$start_index], $numbers, $start_index + 1, $expected_result)
+        || try_operators(to_num($result_so_far & $numbers[$start_index]), $numbers, $start_index + 1, $expected_result);
+    ok;
+ok;
+
+$total_result: 0;
+$line_count: 1;
+for $lines;
+    $line: $lines[$line_count];
+    print("Evaluating equation ", $line_count, " of ", len($lines), ".");
+    $tokens: split($line, ":");
+    $test_value: to_num(trim($tokens[1]));
+    $numbers: wssplit($tokens[2]);
+    for $numbers;
+        $numbers[$_r]: to_num($numbers[$_r]);
+    ok;
+    if try_operators($numbers[1], $numbers, 2, $test_value);
+        $total_result: $total_result + $test_value;
+    ok;
+    $line_count: $line_count + 1;
+ok;
+
+print($total_result);
