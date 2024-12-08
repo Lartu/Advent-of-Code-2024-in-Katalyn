@@ -1,0 +1,63 @@
+(* --- Load Data --- *)
+
+$input: read(open_r("input.txt"));
+$lines: split($input, "\n");
+
+(* --- Antenna Class --- *)
+$antenna: table;
+$antenna{frequency}: "";
+$antenna{x}: 1;
+$antenna{y}: 1;
+$antennas: arr();
+
+(* --- Map Size --- *)
+$map_height: len($lines);
+$map_width: len($lines[1]);
+
+(* --- Parse Antenna Locations --- *)
+$y: 1;
+for $lines;
+    $line: $lines[$_r];
+    $x: 1;
+    for $line;
+        $char: $line[$_r];
+        if !($char :: "#.");
+            # print("Found antenna at ", $x, ", ", $y, ": ", $char);
+            $new_antenna: prototype($antenna);
+            $new_antenna{frequency}: $char;
+            $new_antenna{x}: $x;
+            $new_antenna{y}: $y;
+            append($antennas, $new_antenna);
+        elif $char = "#";
+            # print("Antinode should be at ", $x, ", ", $y);
+        ok;
+        $x: $x + 1;
+    ok;
+    $y: $y + 1;
+ok;
+
+(* --- Find Antinodes --- *)
+$antinode_count: 0;
+$antinodes_found: table;
+for $antennas;
+    $antenna_1: $antennas[$_r];
+    for $antennas;
+        $antenna_2: $antennas[$_r];
+        if $antenna_1 <> $antenna_2 && $antenna_1{frequency} = $antenna_2{frequency};
+            # print($antenna_1{x}, ",",$antenna_1{y}, " VS ",$antenna_2{x}, ",",$antenna_2{y}, ",",);
+            $anode_x: $antenna_1{x} + ($antenna_1{x} - $antenna_2{x});
+            $anode_y: $antenna_1{y} + ($antenna_1{y} - $antenna_2{y});
+            if in_range(1, $anode_x, $map_width) && in_range(1, $anode_y, $map_height);
+                $antinode_key: $anode_x & "|" & $anode_y;
+                if !($antinode_key :: $antinodes_found);
+                    # print("Antinode at: ", $anode_x, "/", $anode_y);
+                    $antinode_count: $antinode_count + 1;
+                    $antinodes_found[$antinode_key]: $true;
+                ok;
+            else;
+                # print("Out of range antinode at: ", $anode_x, "/", $anode_y);
+            ok;
+        ok;
+    ok;
+ok;
+print("Found ", $antinode_count, " antinodes.");
