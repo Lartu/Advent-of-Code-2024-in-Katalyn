@@ -1,0 +1,138 @@
+(* --- Load Data --- *)
+
+$diskmap: read(open_r("input.txt"));
+
+$disk_data: arr();
+$file: $true;
+$file_index: 0;
+$file_length: table;
+$max_file: 0;
+for $diskmap;
+    $char: $diskmap[$_r];
+    $i: 0;
+    while $i < to_num($char);
+        if $file;
+            append($disk_data, $file_index);
+            $file_length[$file_index]: to_num($char);
+            if to_num($file_index) > $max_file;
+                $max_file: to_num($file_index);
+            ok;
+        else;
+            append($disk_data, ".");
+        ok;
+        $i: $i + 1;
+    ok;
+    if $file;
+        $file_index: $file_index + 1;
+    ok;
+    $file: !$file;
+ok;
+#print($disk_data);
+
+def printdisk;
+    if len($disk_data) > 50;
+        return;
+    ok;
+    for $disk_data;
+        printc($disk_data[$_r], " ");
+    ok;
+    print("");
+ok;
+
+$last_index: len($disk_data);
+def delete_number;
+    $num: $_[1];
+    $end: $_[2];
+    $i: $last_index;
+    $found: $false;
+    while $i >= $end;
+        if ($disk_data[$i]&"") = (""&$num);
+            $found: $true;
+            if $i < $last_index;
+                global $last_index: $i;
+            ok;
+            $disk_data[$i]: ".";
+        elif $found;
+            break;
+        ok;
+        $i: $i - 1;
+    ok;
+ok;
+
+# Rearrange disk
+printdisk();
+$next_first_dot: 1;
+$already_sorted: table;
+while $max_file >= 0;
+    # print("Checking file: ", $max_file);
+    # print($already_sorted);
+    $i: $next_first_dot;
+    $set_dot: $false;
+    $max_seen: -1;
+    $seen_dot: $false;
+    while $i <= $last_index;
+        $increment: 1;
+        if $disk_data[$i]&"" = ".";
+            $seen_dot: $true;
+            # Count spaces from here
+            if !$set_dot;
+                $next_first_dot: $i;
+                $set_dot: $true;
+            ok;
+            $j: $i;
+            $count: 0;
+            while $disk_data[$j] & "" = ".";
+                $count: $count + 1;
+                $j: $j + 1;
+                $increment: $increment + 1;
+                if $j > len($disk_data);
+                    break;
+                ok;
+            ok;
+            if !($max_file :: $already_sorted);
+                if $count >= $file_length[$max_file];
+                    $j: $i;
+                    $count: 0;
+                    delete_number($max_file, $i);
+                    while $count < $file_length[$max_file];
+                        $disk_data[$j]: $max_file;
+                        $count: $count + 1;
+                        $j: $j + 1;
+                    ok;
+                    printdisk();
+                    $already_sorted[$max_file]: $true;
+                    break;
+                ok;
+            ok;
+        else;
+            if !$seen_dot || $max_file = $disk_data[$i];
+                $already_sorted[$disk_data[$i]]: $true;
+            ok;
+        ok;
+        $i: $i + $increment;
+    ok;
+    if $max_file % 10 = 0;
+        print($max_file, " $i: [", $next_first_dot, ", ", $last_index, "]");
+        # printdisk();
+    ok;
+    $max_file: $max_file - 1;
+ok;
+
+# Calculate checksum
+$sum: 0;
+for $disk_data;
+    $i: $_r;
+    if ""&$disk_data[$_r] <> ".";
+        $mul: ($i - 1) * $disk_data[$i];
+        # print(($i - 1), " * ", $disk_data[$i], " = ", $mul);
+        $sum: $sum + $mul;
+    else;
+        # print("Skipped!");
+    ok;
+ok;
+print("Disk checksum: ", $sum);
+
+# No es 6362871547520, too high
+#       6362722604045
+# Contraejemplo: 111111111111111111
+# base: 2333133121414131402

@@ -1,0 +1,62 @@
+(* --- Load Data --- *)
+
+$diskmap: read(open_r("input.txt"));
+
+$disk_data: arr();
+$file: $true;
+$file_index: 0;
+for $diskmap;
+    $char: $diskmap[$_r];
+    $i: 0;
+    while $i < to_num($char);
+        if $file;
+            append($disk_data, $file_index);
+        else;
+            append($disk_data, ".");
+        ok;
+        $i: $i + 1;
+    ok;
+    if $file;
+        $file_index: $file_index + 1;
+    ok;
+    $file: !$file;
+ok;
+#print($disk_data);
+
+def printdisk;
+    for $disk_data;
+        printc($disk_data[$_r]);
+    ok;
+    print("");
+ok;
+
+# Rearrange disk
+$i: len($disk_data);
+$j: 1;
+while $i > 0;
+    if "." <> (""&$disk_data[$i]);
+        while $j < $i;
+            if $disk_data[$j]&"" = ".";
+                $disk_data[$j]: $disk_data[$i];
+                $disk_data[$i]: ".";
+                # printdisk();
+                $j: $j + 1;
+                break;
+            ok;
+            $j: $j + 1;
+        ok;
+    ok;
+    $i: $i - 1;
+ok;
+
+# Calculate checksum
+$sum: 0;
+for $disk_data;
+    $i: $_r;
+    if ""&$disk_data[$_r] <> ".";
+        $sum: $sum + ($i - 1) * $disk_data[$i];
+    else;
+        break;
+    ok;
+ok;
+print("Disk checksum: ", $sum);
